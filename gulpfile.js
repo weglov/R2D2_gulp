@@ -43,7 +43,7 @@ gulp.task('script', function() {
 			.pipe($.eslint())
 			.pipe($.eslint.failAfterError())
 			.pipe($.concat('script.js'))
-			.pipe(gulp.dest('public'))
+			.pipe(gulp.dest('public/js'))
 });
 
 
@@ -51,6 +51,16 @@ gulp.task('script', function() {
 
 gulp.task('clean', function() {
 	return del('public');
+});
+
+// Загрузка на ФТП
+gulp.task('ftp', function() {
+		return gulp.src('public/*')
+			.pipe($.ftp({
+				host: 'website.com',
+				user: 'johndoe',
+				pass: '1234'
+			}))
 });
 
 // Работа с файлами img
@@ -86,7 +96,7 @@ gulp.task('build', gulp.series(
 
 // Watch 
 gulp.task('watch', function() {
-	gulp.watch('dev/style/**/*.*', gulp.series('style'));
+	gulp.watch('dev/style/**/*.*', gulp.series('style', 'ftp'));
 	gulp.watch('dev/assets/**/*.*', gulp.series('assets'));
 	gulp.watch('dev/script/**/*.*', gulp.series('script'));
 });
