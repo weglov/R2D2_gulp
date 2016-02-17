@@ -1,55 +1,106 @@
 'use strict';
+var $ = require('gulp-load-plugins')();
 
-var gulp = require('gulp'),
-	sass = require('gulp-sass'),
-	sourcemaps = require('gulp-sourcemaps'),
-	concat = require('gulp-concat'),
-	csso = require('gulp-csso'),
-	gulpIf = require('gulp-if'),
-	newer = require('gulp-newer'),
-	size = require('gulp-size'),
-	autoprefixer = require('gulp-autoprefixer'),
-	imagemin = require('gulp-imagemin');
-	del = require('del'),
+var gulp = require('gulp');
+var del = require('del');
+var browserSync = require('browser-sync');
+var isdev = true;
 
-	debug = require('gulp-debug');
 // Сборка стилей
 gulp.task('style', function() {
 	return gulp.src('dev/style/**/*.scss')
-			.pipe(size())
-			.pipe(autoprefixer())
-			.pipe(sourcemaps.init())
-	 		.pipe(sass().on('error', sass.logError))
-	    	.pipe(concat('all.css'))
-	    	.pipe(csso())
-	    	.pipe(size())
-	    	.pipe(sourcemaps.write('.'))
-	    	.pipe(debug())
+			.pipe($.plumber({
+				errorHandler: $.notify.onError(function(err) {
+		 			return {
+		 				title: 'Sass',
+		 				message: err.message
+		 			};
+	 			})
+			}))
+			.pipe($.if(isdev, $.sourcemaps.init()))
+	 		.pipe($.sass())
+	 		.pipe($.autoprefixer())
+	    	.pipe($.concat('all.css'))
+	    	.pipe($.csso())
+	    	.pipe($.if(isdev, $.sourcemaps.write()))
+	    	.pipe($.debug())
 			.pipe(gulp.dest('public/css'))
 });
+
+
+
+// Сборка JS
+gulp.task('script', function() {
+	return gulp.src('dev/script/**/*.js')
+			.pipe($.plumber({
+				errorHandler: $.notify.onError(function(err) {
+		 			return {
+		 				title: 'JS',
+		 				message: err.message
+		 			};
+	 			})
+			}))
+			.pipe($.eslint())
+			.pipe($.eslint.failAfterError())
+			.pipe($.concat('script.js'))
+			.pipe(gulp.dest('public'))
+});
+
+
+// Полная пересборка
 
 gulp.task('clean', function() {
 	return del('public');
 });
 
+// Работа с файлами img
 gulp.task('assets', function() {
 	return gulp.src('dev/assets/**')
-			.pipe(newer('public'))
-			.pipe(imagemin())
+			.pipe($.newer('public'))
+			.pipe($.plumber({
+				errorHandler: $.notify.onError(function(err) {
+		 			return {
+		 				title: 'IMAGE',
+		 				message: err.message
+		 			};
+	 			})
+			}))
+			.pipe($.imagemin())
 			.pipe(gulp.dest('public'));
 });
 
 
+// Работа с файлами 
+gulp.task('files', function() {
+	return gulp.src('dev/**/*.html')
+			.pipe($.newer('public'))
+			.pipe(gulp.dest('public'));
+});
+
+// Сборка с нуля
 gulp.task('build', gulp.series(
 	'clean', 
-	gulp.parallel('style', 'assets')
+	gulp.parallel('style', 'assets', 'script', 'files')
 	)
 );
 
+// Watch 
 gulp.task('watch', function() {
 	gulp.watch('dev/style/**/*.*', gulp.series('style'));
 	gulp.watch('dev/assets/**/*.*', gulp.series('assets'));
+	gulp.watch('dev/script/**/*.*', gulp.series('script'));
 });
 
 
-gulp.task('dev', gulp.series('build', 'watch'));
+gulp.task('serve', function() {
+	browserSync.init({
+		server: 'public'
+	});
+	browserSync.watch('public/**/*.*').on('change', browserSync.reload);
+});
+
+gulp.task('dev', 
+	gulp.series('build', 
+		gulp.parallel('watch', 'serve')
+		)
+);
