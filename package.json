@@ -18,10 +18,19 @@
   },
   "homepage": "https://github.com/weglov/R2D2_gulp#readme",
   "devDependencies": {
+    "browser-sync": "^2.11.1",
+    "gulp-autoprefixer": "^3.1.0",
     "gulp-concat": "^2.6.0",
     "gulp-csso": "^1.0.1",
     "gulp-debug": "^2.1.2",
+    "gulp-if": "^2.0.0",
+    "gulp-imagemin": "^2.4.0",
+    "gulp-newer": "^1.1.0",
     "gulp-sass": "^2.2.0",
+    "gulp-size": "^2.0.0",
     "gulp-sourcemaps": "^1.6.0"
+  },
+  "dependencies": {
+    "del": "^2.2.0"
   }
 }
