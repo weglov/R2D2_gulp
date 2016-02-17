@@ -4,8 +4,14 @@
 ### Installation
 
 ```sh
+clone repositories
+
+   git clone https://github.com/weglov/R2D2_gulp.git
+
+insatall gulp
 $ npm install gulpjs/gulp#4.0
 
+insatall require
 $ npm install
 ```
 
