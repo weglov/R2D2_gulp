@@ -54,14 +54,14 @@ gulp.task('clean', function() {
 });
 
 // Загрузка на ФТП
-gulp.task('ftp', function() {
-		return gulp.src('public/*')
-			.pipe($.ftp({
-				host: 'website.com',
-				user: 'johndoe',
-				pass: '1234'
-			}))
-});
+// gulp.task('ftp', function() {
+// 		return gulp.src('public/*')
+// 			.pipe($.ftp({
+// 				host: 'website.com',
+// 				user: 'johndoe',
+// 				pass: '1234'
+// 			}))
+// });
 
 // Работа с файлами img
 gulp.task('assets', function() {
@@ -96,7 +96,8 @@ gulp.task('build', gulp.series(
 
 // Watch 
 gulp.task('watch', function() {
-	gulp.watch('dev/style/**/*.*', gulp.series('style', 'ftp'));
+	gulp.watch('dev/style/**/*.*', gulp.series('style'));
+	gulp.watch('dev/**/*.html', gulp.series('files'));
 	gulp.watch('dev/assets/**/*.*', gulp.series('assets'));
 	gulp.watch('dev/script/**/*.*', gulp.series('script'));
 });
